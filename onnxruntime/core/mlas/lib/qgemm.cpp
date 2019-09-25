@@ -16,7 +16,7 @@ Abstract:
 --*/
 
 #include "mlasi.h"
-
+#include <cstdlib>
 //
 // Define the default strides to step through slices of the input matrices.
 //
@@ -1111,14 +1111,49 @@ MlasGemm(
     )
 {
     MLAS_DECLSPEC_ALIGN(uint8_t PanelA[MLAS_GEMM_U8S8_STRIDEM * MLAS_GEMM_U8S8_STRIDEK], 64);
-    MLAS_DECLSPEC_ALIGN(int8_t PanelB[MLAS_GEMM_U8S8_STRIDEN * MLAS_GEMM_U8S8_STRIDEK], 64);
+    //MLAS_DECLSPEC_ALIGN(int8_t PanelB[MLAS_GEMM_U8S8_STRIDEN * MLAS_GEMM_U8S8_STRIDEK], 64);
 
     MLAS_DECLSPEC_ALIGN(int32_t RowSumVector[MLAS_GEMM_U8S8_STRIDEM], 16);
-    MLAS_DECLSPEC_ALIGN(int32_t ColumnSumVector[MLAS_GEMM_U8S8_STRIDEN], 16);
+    //MLAS_DECLSPEC_ALIGN(int32_t ColumnSumVector[MLAS_GEMM_U8S8_STRIDEN], 16);
 
     size_t StrideM = MLAS_GEMM_U8S8_STRIDEM;
     size_t StrideN = MLAS_GEMM_U8S8_STRIDEN;
     size_t StrideK = MLAS_GEMM_U8S8_STRIDEK;
+
+#define NextMultiple(X, M) (((X + M - 1) / (M)) * M)
+    size_t padded_N = NextMultiple(N, MLAS_GEMM_U8S8_STRIDEN);
+    size_t padded_K = NextMultiple(K, MLAS_GEMM_U8S8_STRIDEK);
+    static const int8_t* prev_B = nullptr;
+    static int8_t* PanelB_all = nullptr;
+    static int32_t* ColumnSumVector_all = nullptr;
+    static std::mutex mutex;
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        if (prev_B != B) {
+            prev_B = B;
+            if (PanelB_all)
+                free(PanelB_all);
+            if (ColumnSumVector_all)
+                free(ColumnSumVector_all);
+            PanelB_all = (int8_t*)aligned_alloc(64, padded_N * padded_K);
+            ColumnSumVector_all = (int32_t*)aligned_alloc(64, padded_N * K * sizeof(int32_t));
+            size_t CountK;
+            for(size_t k = 0; k < K; k += CountK) {
+                CountK = StrideK;
+                if (CountK > (K - k)) {
+                    CountK = K - k;
+                }
+                size_t CountN;
+                for(size_t n = 0; n < N; n += CountN) {
+                    CountN = StrideN;
+                    if (CountN > (N - n)) {
+                        CountN = N - n;
+                    }
+                    MlasPlatform.GemmU8S8CopyPackBRoutine(PanelB_all + n * StrideK + k * padded_N, B + n + k * ldb, ldb, CountN, CountK, ColumnSumVector_all + k * padded_N + n, -int16_t(offa));
+                }
+            }
+        }
+    }
 
     MLAS_UNREFERENCED_PARAMETER(ThreadPool);
 
@@ -1142,7 +1177,9 @@ MlasGemm(
                 CountN = N - n;
             }
 
-            MlasPlatform.GemmU8S8CopyPackBRoutine(PanelB, B + n + k * ldb, ldb, CountN, CountK, ColumnSumVector, -int16_t(offa));
+            //MlasPlatform.GemmU8S8CopyPackBRoutine(PanelB, B + n + k * ldb, ldb, CountN, CountK, ColumnSumVector, -int16_t(offa));
+            int8_t* PanelB = PanelB_all + n * StrideK + k * padded_N;
+            int32_t* ColumnSumVector = ColumnSumVector_all + k * padded_N + n;
 
             size_t CountM;
 
