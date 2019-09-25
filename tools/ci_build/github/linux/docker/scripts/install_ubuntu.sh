@@ -7,7 +7,7 @@ p) PYTHON_VER=${OPTARG};;
 esac
 done
 
-PYTHON_VER=${PYTHON_VER:=3.7}
+PYTHON_VER=${PYTHON_VER:=3.5}
 DEBIAN_FRONTEND=noninteractive
 
 SYS_LONG_BIT=$(getconf LONG_BIT)
@@ -63,17 +63,17 @@ if [ $SYS_LONG_BIT = "64" ]; then
   rm -rf /tmp/dotnet
 fi
 
-if [ $PYTHON_VER != "3.5" ]; then
-    apt-get install -y --no-install-recommends \
-            python${PYTHON_VER} \
-            python${PYTHON_VER}-dev
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VER} 1
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 2
-    update-alternatives --set python3 /usr/bin/python${PYTHON_VER}
-    #TODO: the old one(/usr/bin/pip3) should be uninstalled first. Because the one will be
-    #put at /usr/local/. Then there will be two pips.
-    /usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall pip==19.0.3
-fi
+#if [ $PYTHON_VER != "3.5" ]; then
+#    apt-get install -y --no-install-recommends \
+#            python${PYTHON_VER} \
+#            python${PYTHON_VER}-dev
+#    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VER} 1
+#    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 2
+#    update-alternatives --set python3 /usr/bin/python${PYTHON_VER}
+#    #TODO: the old one(/usr/bin/pip3) should be uninstalled first. Because the one will be
+#    #put at /usr/local/. Then there will be two pips.
+#    /usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall pip==19.0.3
+#fi
 
 /usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall numpy==1.15.0
 /usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall requests==2.21.0
