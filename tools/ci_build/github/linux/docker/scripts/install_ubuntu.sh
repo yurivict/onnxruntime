@@ -75,9 +75,12 @@ fi
 #    /usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall pip==19.0.3
 #fi
 
-/usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall numpy==1.15.0
-/usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall requests==2.21.0
-/usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall sympy==1.1.1
+#/usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall numpy==1.15.0
+/usr/bin/python3 -m pip install --upgrade --force-reinstall numpy==1.15.0
+#/usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall requests==2.21.0
+/usr/bin/python3 -m pip install --upgrade --force-reinstall requests==2.21.0
+#/usr/bin/python${PYTHON_VER} -m pip install --upgrade --force-reinstall sympy==1.1.1
+/usr/bin/python3 -m pip install --upgrade --force-reinstall sympy==1.1.1
 rm -rf /var/lib/apt/lists/*
 
 aria2c -q -d /tmp -o llvm.tar.xz http://releases.llvm.org/6.0.1/clang+llvm-6.0.1-x86_64-linux-gnu-ubuntu-16.04.tar.xz
