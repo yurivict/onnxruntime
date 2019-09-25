@@ -7,7 +7,7 @@ p) PYTHON_VER=${OPTARG};;
 esac
 done
 
-PYTHON_VER=${PYTHON_VER:=3.5}
+PYTHON_VER=${PYTHON_VER:=3.7}
 DEBIAN_FRONTEND=noninteractive
 
 SYS_LONG_BIT=$(getconf LONG_BIT)
