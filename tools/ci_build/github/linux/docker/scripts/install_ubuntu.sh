@@ -34,7 +34,7 @@ apt-get update && apt-get install -y --no-install-recommends \
         language-pack-en \
         libopenblas-dev \
         liblttng-ust0 \
-        libcurl3 \
+        libcurl4 \
         libssl1.0.0 \
         libkrb5-3 \
         libicu55 \
