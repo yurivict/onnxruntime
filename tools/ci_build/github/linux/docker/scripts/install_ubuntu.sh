@@ -14,6 +14,7 @@ SYS_LONG_BIT=$(getconf LONG_BIT)
 
 apt-get update && apt-get install -y software-properties-common
 add-apt-repository ppa:deadsnakes/ppa
+add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
 apt-get update && apt-get install -y --no-install-recommends \
         autotools-dev \
         automake \
@@ -43,9 +44,9 @@ apt-get update && apt-get install -y --no-install-recommends \
         bzip2 \
         unzip \
         zip \
-        rsync libunwind8 libpng16-dev libexpat1-dev \
+        rsync libunwind8 libpng-dev libexpat1-dev \
         python3-setuptools python3-numpy python3-wheel python python3-pip python3-pytest \
-        libprotobuf-dev libprotobuf9v5 protobuf-compiler \
+        libprotobuf-dev libprotobuf10 protobuf-compiler \
         libedit-dev libxml2-dev python3-packaging
 
 locale-gen en_US.UTF-8
