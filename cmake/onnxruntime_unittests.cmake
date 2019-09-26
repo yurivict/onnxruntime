@@ -457,7 +457,7 @@ endif()
 
 add_library(onnx_test_data_proto ${TEST_SRC_DIR}/proto/tml.proto)
 if(WIN32)
-  target_compile_options(onnx_test_data_proto PRIVATE "/wd4146" "/wd4125" "/wd4456" "/wd2220")
+  target_compile_options(onnx_test_data_proto PRIVATE "/wd4146" "/wd4125" "/wd4456" "/wd4267")
 else()
   if(HAS_UNUSED_PARAMETER)
     target_compile_options(onnx_test_data_proto PRIVATE "-Wno-unused-parameter")

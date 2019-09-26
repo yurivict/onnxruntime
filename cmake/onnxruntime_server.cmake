@@ -59,7 +59,7 @@ target_compile_definitions(server_proto PUBLIC $<TARGET_PROPERTY:protobuf::libpr
 onnxruntime_protobuf_generate(APPEND_PATH IMPORT_DIRS ${REPO_ROOT}/cmake/external/protobuf/src ${ONNXRUNTIME_ROOT}/server/protobuf ${ONNXRUNTIME_ROOT}/core/protobuf TARGET server_proto)
 add_dependencies(server_proto ${onnxruntime_EXTERNAL_DEPENDENCIES})
 if(WIN32)
-  target_compile_options(server_proto PRIVATE "/wd4146" "/wd4125" "/wd4456" "/wd2220")
+  target_compile_options(server_proto PRIVATE "/wd4146" "/wd4125" "/wd4456" "/wd4267")
 else()
   if(HAS_UNUSED_PARAMETER)
     target_compile_options(server_proto PRIVATE "-Wno-unused-parameter")
