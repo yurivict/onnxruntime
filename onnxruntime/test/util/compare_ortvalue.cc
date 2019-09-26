@@ -41,6 +41,7 @@
 
 #include "core/graph/onnx_protobuf.h"
 #include "core/framework/tensorprotoutils.h"
+#include "core/framework/utils.h"
 #include "Eigen/Core"
 #include "Eigen/src/Core/arch/GPU/Half.h"
 
@@ -325,7 +326,8 @@ bool AreShapesEqual(const std::vector<int64_t>& real_shape, const ::ONNX_NAMESPA
         continue;
         break;
       // This is for unlikely case when we add new oneof value
-      default : assert(false);
+      default:
+        assert(false);
         break;
     }
   }
