@@ -60,8 +60,8 @@ onnxruntime_protobuf_generate(APPEND_PATH IMPORT_DIRS ${REPO_ROOT}/cmake/externa
 add_dependencies(server_proto ${onnxruntime_EXTERNAL_DEPENDENCIES})
 if(NOT WIN32)
   if(HAS_UNUSED_PARAMETER)
-     set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/predict.pb.cc PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
-     set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/onnx-ml.pb.cc PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
+     set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/predict.pb.cc PROPERTIES COMPILE_FLAGS -Wno-unused-parameter -Wno-unused-variable)
+     set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/onnx-ml.pb.cc PROPERTIES COMPILE_FLAGS -Wno-unused-parameter -Wno-unused-variable)
   endif()
 endif()
 
