@@ -87,7 +87,7 @@ TEST(MathOpTest, Add_Broadcast_Axis) {
   test.Run(OpTester::ExpectResult::kExpectSuccess, "");
 }
 
-TEST(MathOpTest, DISABLED_Add_Broadcast_0x0) {
+TEST(MathOpTest, Add_Broadcast_0x0) {
   OpTester test("Add");
 
   test.AddInput<float>("A", {}, {10.0f});
