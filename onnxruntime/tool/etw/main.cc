@@ -13,7 +13,7 @@ int real_main(int argc, TCHAR* argv[]) {
   ProfilingInfo context;
   TraceSession session;
   session.AddHandler(OrtProviderGuid, OrtEventHandler, &context);
-  session.InitializeEtlFile(L"C:\\src\\onnxruntime\\1.etl", nullptr);
+  session.InitializeEtlFile(argv[1], nullptr);
   ULONG status = ProcessTrace(&session.traceHandle_, 1, 0, 0);
   if (status != ERROR_SUCCESS && status != ERROR_CANCELLED) {    
     std::cout << "OpenTrace failed with " << status << std::endl;
