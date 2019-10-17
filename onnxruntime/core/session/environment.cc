@@ -16,7 +16,9 @@
 #ifdef USE_DML
 #include "core/graph/dml_ops/dml_defs.h"
 #endif
-
+#ifdef ONNXRUNTIME_ENABLE_INSTRUMENT
+#include "core/platform/tracing.h"
+#endif
 namespace onnxruntime {
 using namespace ::onnxruntime::common;
 using namespace ONNX_NAMESPACE;
@@ -37,6 +39,9 @@ Status Environment::Initialize() {
   try {
     // Register Microsoft domain with min/max op_set version as 1/1.
     std::call_once(schemaRegistrationOnceFlag, []() {
+#ifdef ONNXRUNTIME_ENABLE_INSTRUMENT
+    TraceLoggingRegister(ort_provider);
+#endif
       ONNX_NAMESPACE::OpSchemaRegistry::DomainToVersionRange::Instance().AddDomainToVersion(onnxruntime::kMSDomain, 1, 1);
       ONNX_NAMESPACE::OpSchemaRegistry::DomainToVersionRange::Instance().AddDomainToVersion(onnxruntime::kMSNchwcDomain, 1, 1);
       ONNX_NAMESPACE::OpSchemaRegistry::DomainToVersionRange::Instance().AddDomainToVersion(onnxruntime::kMSAutoMLDomain, 1, 1);
@@ -96,6 +101,9 @@ Internal copy node
 }
 
 Environment::~Environment() {
+#ifdef ONNXRUNTIME_ENABLE_INSTRUMENT
+    TraceLoggingUnregister(ort_provider);
+#endif
   ::google::protobuf::ShutdownProtobufLibrary();
 }
 
