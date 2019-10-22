@@ -62,6 +62,7 @@ jobs:
           configuration: 'Debug'
           msbuildArgs: ${{ parameters.MsbuildArguments }}
           msbuildArchitecture: 'x64'
+          restoreNugetPackages: true
           maximumCpuCount: true
           logProjectEvents: true
           workingFolder: '$(Build.BinariesDirectory)\Debug'
@@ -111,6 +112,7 @@ jobs:
         configuration: 'RelWithDebInfo'
         msbuildArgs: ${{ parameters.MsbuildArguments }}
         msbuildArchitecture: 'x64'
+        restoreNugetPackages: true
         logProjectEvents: true
         workingFolder: '$(Build.BinariesDirectory)\RelWithDebInfo'
 
