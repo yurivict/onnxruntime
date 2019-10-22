@@ -5,6 +5,13 @@ parameters:
   buildArch: amd64
   setVcvars: false
 steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core sdk'
+      inputs:
+        packageType: sdk
+        #see: https://github.com/dotnet/core/blob/master/release-notes/2.2/2.2.7/2.2.7.md
+        version: 2.2.109
+        installationPath: $(Agent.ToolsDirectory)/dotnet
     - task: NuGetToolInstaller@0
       displayName: Use Nuget 4.9
       inputs:
