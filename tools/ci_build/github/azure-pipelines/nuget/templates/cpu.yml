@@ -19,7 +19,7 @@ jobs:
     DoCompliance: ${{ parameters.DoCompliance }}
     DoEsrp: ${{ parameters.DoEsrp }}
     NuPackScript: |
-     msbuild $(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.proj /p:Configuration=RelWithDebInfo /t:CreatePackage
+     dotnet pack $(Build.SourcesDirectory)\csharp\src\Microsoft.ML.OnnxRuntime\Microsoft.ML.OnnxRuntime.csproj --no-build --configuration RelWithDebInfo
      copy $(Build.SourcesDirectory)\csharp\src\Microsoft.ML.OnnxRuntime\bin\RelWithDebInfo\*.nupkg $(Build.ArtifactStagingDirectory)
 
 
@@ -33,7 +33,7 @@ jobs:
     DoCompliance: 'false'
     DoEsrp: ${{ parameters.DoEsrp }}
     NuPackScript: |
-     msbuild $(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.proj /p:Configuration=RelWithDebInfo /p:TargetArchitecture=x86 /t:CreatePackage
+     dotnet pack $(Build.SourcesDirectory)\csharp\src\Microsoft.ML.OnnxRuntime\Microsoft.ML.OnnxRuntime.csproj --no-build --configuration RelWithDebInfo -p:TargetArchitecture=x86
      cd $(Build.SourcesDirectory)\csharp\src\Microsoft.ML.OnnxRuntime\bin\RelWithDebInfo\
      ren *.nupkg win-x86.zip
      copy $(Build.SourcesDirectory)\csharp\src\Microsoft.ML.OnnxRuntime\bin\RelWithDebInfo\*zip $(Build.ArtifactStagingDirectory)
