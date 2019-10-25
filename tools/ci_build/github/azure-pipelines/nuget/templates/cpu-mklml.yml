@@ -17,6 +17,7 @@ jobs:
     DoNugetPack : 'true'
     DoCompliance: 'false'
     DoEsrp: ${{ parameters.DoEsrp }}
+    PackageId: 'Microsoft.ML.OnnxRuntime.MKLML'
     NuPackScript: |
      dotnet pack $(Build.SourcesDirectory)\csharp\src\Microsoft.ML.OnnxRuntime\Microsoft.ML.OnnxRuntime.csproj --no-build --configuration RelWithDebInfo -p:PackageId=Microsoft.ML.OnnxRuntime.MKLML
      copy $(Build.SourcesDirectory)\csharp\src\Microsoft.ML.OnnxRuntime\bin\RelWithDebInfo\*.nupkg $(Build.ArtifactStagingDirectory)
