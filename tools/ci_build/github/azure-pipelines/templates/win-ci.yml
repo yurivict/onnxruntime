@@ -10,6 +10,7 @@ parameters:
   DoTestCoverage: 'false'
   BuildArch: 'x64'
   SetVcvars: 'false'
+  msbuildArchitecture: 'amd64'
   MsbuildArguments: '/m'
   EnvSetupScript: 'setup_env.bat'
   CudaVersion: ''
@@ -34,7 +35,7 @@ jobs:
     - template: windows-build-tools-setup-steps.yml
       parameters:
         EnvSetupScript: ${{ parameters.EnvSetupScript }}
-        buildArch: ${{ parameters.BuildArch }}
+        buildArch: ${{ parameters.msbuildArchitecture }}
         setVcvars: ${{ parameters.SetVcvars }}
 
     # Copy CUDA props files if needed
@@ -51,9 +52,17 @@ jobs:
         filename: '$(Build.BinariesDirectory)\packages\python\python.exe'
         arguments: '$(BuildCommand) --update --config Debug RelWithDebInfo'
         workingDirectory: "$(Build.BinariesDirectory)"
-
+        
     # Build Debug Mode
     - ${{ if eq(parameters['DoDebugBuild'], 'true') }}:
+      - task: DotNetCoreCLI@2
+        displayName: 'Restore nuget packages for debug build'
+        inputs:
+          command: restore
+          projects: '$(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.sln'
+          configuration: 'Debug'          
+          arguments: '--configuration Debug /p:Platform="Any CPU"'
+          workingDirectory: '$(Build.SourcesDirectory)\csharp'
       - task: VSBuild@1
         displayName: 'Build Debug'
         inputs:
@@ -74,24 +83,23 @@ jobs:
           arguments: '$(BuildCommand) --test --config Debug'
           workingFolder: '$(Build.BinariesDirectory)'
 
-      - task: MSBuild@1
+      - task: DotNetCoreCLI@2
         displayName: 'Build C# Debug'
         inputs:
-          solution: '$(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.proj'
-          platform: 'Any CPU'
-          configuration: 'Debug'
-          msbuildArchitecture: 'x64'
-          workingFolder: '$(Build.SourcesDirectory)\csharp'
-
-      - task: MSBuild@1
+          command: build
+          projects: '$(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.sln'
+          configuration: 'Debug'          
+          arguments: '--configuration Debug /p:Platform="Any CPU"'
+          workingDirectory: '$(Build.SourcesDirectory)\csharp'
+          
+      - task: DotNetCoreCLI@2
         displayName: 'Test C# Debug'
         inputs:
-          solution: '$(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.proj'
-          platform: 'Any CPU'
-          configuration: 'Debug'
-          msbuildArchitecture: 'x64'
-          msbuildArguments: '/t:RunTest'
-          workingFolder: '$(Build.SourcesDirectory)\csharp'
+          command: test
+          projects: '$(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.sln'
+          configuration: 'Debug'          
+          arguments: '--configuration Debug /p:Platform="Any CPU"'
+          workingDirectory: '$(Build.SourcesDirectory)\csharp'
 
     # Run test coverage report
     - ${{ if eq(parameters['DoTestCoverage'], 'true') }}:
@@ -103,6 +111,15 @@ jobs:
     - script: |
        @echo ##vso[task.setvariable variable=Configuration]RelWithDebInfo
 
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore nuget packages for RelWithDebInfo build'
+      inputs:
+        command: restore
+        projects: '$(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.sln'
+        configuration: 'RelWithDebInfo'          
+        arguments: '--configuration RelWithDebInfo /p:Platform="Any CPU"'
+        workingDirectory: '$(Build.SourcesDirectory)\csharp'
+
     - task: VSBuild@1
       displayName: 'Build RelWithDebInfo'
       inputs:
@@ -111,8 +128,10 @@ jobs:
         configuration: 'RelWithDebInfo'
         msbuildArgs: ${{ parameters.MsbuildArguments }}
         msbuildArchitecture: 'x64'
+        maximumCpuCount: true
         logProjectEvents: true
         workingFolder: '$(Build.BinariesDirectory)\RelWithDebInfo'
+        createLogFile: true
 
     - task: BatchScript@1
       displayName: 'Test RelWithDebInfo'
@@ -121,24 +140,23 @@ jobs:
         arguments: '$(BuildCommand) --test --config RelWithDebInfo'
         workingFolder: "$(Build.BinariesDirectory)"
 
-    - task: MSBuild@1
+    - task: DotNetCoreCLI@2
       displayName: 'Build C# RelWithDebInfo'
       inputs:
-        solution: '$(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.proj'
-        platform: 'Any CPU'
-        configuration: 'RelWithDebInfo'
-        msbuildArchitecture: 'x64'
-        workingFolder: '$(Build.SourcesDirectory)\csharp'
+        command: build
+        projects: '$(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.sln'
+        configuration: 'RelWithDebInfo'          
+        arguments: '--configuration RelWithDebInfo /p:Platform="Any CPU"'
+        workingDirectory: '$(Build.SourcesDirectory)\csharp'
 
-    - task: MSBuild@1
+    - task: DotNetCoreCLI@2
       displayName: 'Test C# RelWithDebInfo'
       inputs:
-        solution: '$(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.proj'
-        platform: 'Any CPU'
-        configuration: 'RelWithDebInfo'
-        msbuildArchitecture: 'x64'
-        msbuildArguments: '/t:RunTest'
-        workingfolder: '$(Build.SourcesDirectory)\csharp'
+        command: test
+        projects: '$(Build.SourcesDirectory)\csharp\OnnxRuntime.CSharp.sln'
+        configuration: 'RelWithDebInfo'          
+        arguments: '--configuration RelWithDebInfo /p:Platform="Any CPU"'
+        workingDirectory: '$(Build.SourcesDirectory)\csharp'
 
     - task: PublishTestResults@2
       displayName: 'Publish unit test results'
@@ -150,13 +168,6 @@ jobs:
 
     # Nuget packaging if needed
     - ${{ if eq(parameters['DoNugetPack'], 'true') }}:
-      - task: BatchScript@1
-        displayName: 'Setup VS2017 env vars'
-        inputs:
-          filename: 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat'
-          arguments: 'x64'
-          modifyEnvironment: true
-
       # Esrp signing
       - template: esrp_dll.yml
         parameters:
