@@ -115,7 +115,7 @@ jobs:
     - template: templates/clean-agent-build-directory-step.yml
 
 - job: Windows_Packaging_GPU_x64
-  pool: 'Win-GPU'
+  pool: 'Win-GPU-CUDA10'
   variables:
     buildDirectory: '$(Build.BinariesDirectory)'
     buildConfig: 'RelWithDebInfo'
