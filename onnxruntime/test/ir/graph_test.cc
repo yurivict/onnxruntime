@@ -960,7 +960,7 @@ TEST(GraphUpdateTest, ReplaceInitializedTensor) {
     ASSERT_TRUE(status.IsOK()) << status.ErrorMessage();
 
     auto tensor_data_matches = [](
-        const ONNX_NAMESPACE::TensorProto& a, const ONNX_NAMESPACE::TensorProto& b) {
+                                   const ONNX_NAMESPACE::TensorProto& a, const ONNX_NAMESPACE::TensorProto& b) {
       if (a.int32_data_size() != b.int32_data_size()) return false;
       for (int i = 0; i < a.int32_data_size(); ++i) {
         if (a.int32_data(i) != b.int32_data(i)) return false;
@@ -978,6 +978,31 @@ TEST(GraphUpdateTest, ReplaceInitializedTensor) {
     ASSERT_EQ(graph_proto.initializer_size(), 1);
     ASSERT_TRUE(tensor_data_matches(graph_proto.initializer(0), valid_replacement));
   }
+}
+
+// Add/Remove/Add of tensor should work as expected, and both const and non-const ToGraphProto should return the same
+TEST(GraphUpdateTest, ToProtoInitializerHandling) {
+  Model m{"test_model"};
+  Graph& graph = m.MainGraph();
+
+  ONNX_NAMESPACE::TensorProto init{};
+  init.set_name("name");
+  init.set_data_type(ONNX_NAMESPACE::TensorProto_DataType_INT32);
+  init.add_dims(1);
+  init.add_int32_data(1);
+
+  graph.AddInitializedTensor(init);
+  graph.RemoveInitializedTensor(init.name());
+  graph.AddInitializedTensor(init);
+
+  ASSERT_EQ(graph.GetAllInitializedTensors().size(), 1);
+
+  ONNX_NAMESPACE::GraphProto graph_proto_from_const_graph =
+      static_cast<const Graph&>(graph).ToGraphProto();
+  ONNX_NAMESPACE::GraphProto graph_proto_from_graph = graph.ToGraphProto();
+
+  ASSERT_EQ(graph_proto_from_const_graph.initializer_size(), 1);
+  ASSERT_EQ(graph_proto_from_graph.initializer_size(), 1);  
 }
 }  // namespace test
 }  // namespace onnxruntime
